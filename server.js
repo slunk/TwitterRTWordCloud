@@ -43,7 +43,7 @@ var sendWords = function (recipients) {
     }).sort(function (elt) {
         return elt.size;
     });
-    recipients.emit('words', tmp.slice(tmp.lenght - 30, tmp.length));
+    recipients.emit('words', tmp.slice(tmp.length - 30, tmp.length));
 };
 
 setInterval(function () {
