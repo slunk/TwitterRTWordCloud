@@ -33,19 +33,29 @@ setInterval(function () {
     });
 }, 1000);
 
-setInterval(function () {
-        var blah = Object.keys(words).filter(function (word) {
+var sendWords = function (recipients) {
+    recipients.emit('words', Object.keys(words).filter(function (word) {
         return words[word] > 1;
     }).map(function (word) {
         return {text: word, size: 10 + 5 * words[word]};
-    });
-    io.sockets.emit('words', blah);
+    }));
+};
+
+setInterval(function () {
+    sendWords(io.sockets);
 }, 2000);
+
+io.sockets.on('connection', function (socket) {
+    sendWords(socket);
+});
 
 //twitter_streamer.stream('statuses/filter', //{track: ["pokemon"]}, function (stream) {
 //        {locations: ["-74,40,-73,41"]/*["-122.75,36.8","-121.75,37.8"]*/}, function (stream) {
 twitter_streamer.stream('statuses/filter', {track: ["the", "it", "I", "me", "will", "to", "in"]},  function (stream) {
     stream.on('data', function (data) {
+        if (!data.text) {
+            return;
+        }
         data.text.split(' ').forEach(function (word) {
             var lowered = word.toLowerCase().replace(/^\s+|\.?\s+$/, '');
             //if (!(stopwords.indexOf(lowered) >= 0)) {
