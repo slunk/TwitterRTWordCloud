@@ -1,0 +1,14 @@
+{
+  "name": "TwitterRTWordCloud",
+  "version": "0.0.1",
+  "dependencies": {
+    "ntwitter": "0.5.0",
+    "socket.io": "0.9.16",
+    "connect": "2.8.5"
+  },
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.2.x"
+  }
+}
+

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+<script src="./lib/d3/d3.js"></script>
+<script src="./d3.layout.cloud.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect(window.location.hostname);
+  var fill = d3.scale.category20();
+
+  var updateCloud = function (words, cb) {
+      d3.layout.cloud().size([window.innerWidth, window.innerHeight])
+      .words(words)
+      .padding(5)
+      .font("Impact")
+      .fontSize(function(d) { return d.size; })
+      .on("end", cb)
+      .start();
+  };
+
+  updateCloud([], draw);
+
+    socket.on('words', function(data) {
+        updateCloud(data, update);
+    });
+
+  function update(words) {
+        var text = d3.select("body").select("svg")
+        .attr("width", window.innerWidth)
+        .attr("height", window.innerHeight)
+      .select("g")
+      .attr("transform", "translate(" + (window.innerWidth / 2) + "," + (window.innerHeight / 2) + ")").selectAll("text")
+      .data(words);
+      
+      text.style("font-size", function(d) { return d.size + "px"; })
+      .transition()
+            .attr("transform", function(d) {
+                return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            });
+
+        text.enter().append("text")
+        .attr("id", function (d) { return d.text; })
+        .style("font-size", function(d) { return d.size + "px"; })
+        .style("font-family", "Impact")
+        .style("fill", function(d, i) { return fill(i); })
+        .attr("text-anchor", "middle")
+        .attr("transform", function(d) {
+          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+        })
+        .text(function(d) { return d.text; });
+
+        text.exit().remove();
+    }
+
+  function draw(words) {
+    d3.select("body").append("svg")
+        .attr("width", window.innerWidth)
+        .attr("height", window.innerHeight)
+      .append("g")
+        .attr("transform", "translate(" + (window.innerWidth / 2) + "," + (window.innerHeight / 2) + ")")
+      .selectAll("text")
+        .data(words)
+      .enter().append("text")
+      .attr("id", function (d) { return d.text; })
+        .style("font-size", function(d) { return d.size + "px"; })
+        .style("font-family", "Impact")
+        .style("fill", function(d, i) { return fill(i); })
+        .attr("text-anchor", "middle")
+        .attr("transform", function(d) {
+          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+        })
+        .text(function(d) { return d.text; });
+  }
+</script>
+
