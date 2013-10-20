@@ -28,12 +28,12 @@ setInterval(function () {
 
 setInterval(function () {
     Object.keys(words).forEach(function (word) {
-        words[word] -= Math.floor(Math.pow(Math.E, words[word] / 100));
+        words[word]--;
         if (words[word] <= 0) {
             delete words[word];
         }
     });
-}, 1000);
+}, 3000);
 
 var sendWords = function (recipients) {
     var tmp = Object.keys(words).filter(function (word) {
@@ -61,10 +61,11 @@ twitter_streamer.stream('statuses/filter', {track: ["the", "it", "I", "me", "wil
         }
         data.text.split(' ').forEach(function (word) {
             var lowered = word.toLowerCase().replace(/^\s+|\.?\s+$/, '');
-            //if (!(stopwords.indexOf(lowered) >= 0)) {
-            if (lowered.length > 2 && !(lowered in stopword_obj)) {
+            if (lowered.length > 2 && !(lowered in stopword_obj) && lowered.indexOf("'") < 0) {
                 if (words[lowered]) {
-                    words[lowered] += 1;
+                    if (words[lowered] < 100) {
+                        words[lowered] += 1;
+                    }
                 } else {
                     words[lowered] = 1;
                 }
